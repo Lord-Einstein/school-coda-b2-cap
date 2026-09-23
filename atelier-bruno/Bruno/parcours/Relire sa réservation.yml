@@ -1,0 +1,16 @@
+info:
+  name: "\tRelire sa réservation"
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{baseUrl}}/bookings/efdbb9d1-02c2-4bc3-afb7-6788d8782b1e"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

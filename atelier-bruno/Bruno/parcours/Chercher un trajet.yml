@@ -1,0 +1,26 @@
+info:
+  name: Chercher un trajet
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/trips?origin=efdbb9d1-02c2-4bc3-afb7-6788d8782b1e&destination=b2e783e1-c824-4d63-b37a-d8d698862f1d&date=2024-02-01T09:00:00Z"
+  params:
+    - name: origin
+      value: efdbb9d1-02c2-4bc3-afb7-6788d8782b1e
+      type: query
+    - name: destination
+      value: b2e783e1-c824-4d63-b37a-d8d698862f1d
+      type: query
+    - name: date
+      value: 2024-02-01T09:00:00Z
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
