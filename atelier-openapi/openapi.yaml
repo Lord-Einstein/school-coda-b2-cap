@@ -381,6 +381,29 @@ paths:
                 status: 409
                 detail: Vous avez déjà un panier actif. Veuillez le régler ou videz-le avant d'en ouvrir un nouveau.
 
+    get:
+      tags: [Panier]
+      operationId: getCartInfos
+      summary: Récupérer son panier actif
+      description: |
+        Retourne les informations du panier en cours 
+        donc avec un statut `en_cours` de l'user connecté.
+      responses:
+        '200':
+          description: Le panier actif de l'user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404':
+          description: Pas de panier actif trouvé pour cet utilisateur.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+
 
   # GET /carts
   #   Récupérer le panier actif du voyageur connecté. Un voyageur n'a qu'un
@@ -765,7 +788,7 @@ components:
     CartItem:
       type: object
       description: Un élément compris dans le panier, donc une réservation sur un trajet précis
-      required: [id, trip, nbPassengers, subtotal]
+      required: [id, trip, nbPassengers, subTotal]
       properties:
         id:
           type: string
@@ -779,7 +802,7 @@ components:
           minimum: 1
           description: Nombre de places réservées pour le trajet
           example: 2
-        subtotal:
+        subTotal:
           type: number
           format: float
           description: Sous total pour une certaine réservation
