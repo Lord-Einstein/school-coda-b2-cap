@@ -234,7 +234,23 @@ paths:
         Permet de filtrer par nom et de limiter le nombre de résultats.
       security: []
 
-      
+      parameters:
+        - name: name
+          in: query
+          required: false
+          description: Filtre sur le nom de la ville.
+          schema:
+            type: string
+            example: Par
+
+        - name: limit
+          in: query
+          required: false
+          description: Mettre un nombre maximum de villes à retourner.
+          schema:
+            type: integer
+            minimum: 1
+            example: 10
 
       responses:
         '200':
@@ -245,10 +261,17 @@ paths:
                 type: array
                 items:                
                   $ref: '#/components/schemas/City'
+              examples:
+                listeComplete:
+                  summary: Liste de plusieurs villes
+                  value:
+                    - id: "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+                      name: "Paris"
+                    - id: "1a2b3c4d-5e6f-4a7b-8a9b-0e1f2a3b4c5d"
+                      name: "Lyon"
+                    - id: "1a2b3c4d-5c6d-4a7b-8c9d-0e1f2a3b4c5d"
+                      name: "Marseille"
         
-
-
-
 
   # POST /trips/search
   #   Rechercher les lancers reliant deux villes à une date donnée, pour un
