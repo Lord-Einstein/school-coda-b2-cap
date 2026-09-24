@@ -350,6 +350,38 @@ paths:
   #   Ouvrir un panier vide. C'est ici que la connexion devient nécessaire :
   #   la découverte est libre, la réservation est nominative.
 
+  /carts:
+    post:
+      tags: [Panier]
+      operationId: createCart
+      summary: Ouvrir un panier
+      description: |
+        Ouvrir un panier vide. À cette étape la connexion devient nécessaire :
+        la découverte est libre, la réservation est nominative. Un user n'a droit
+        qu'à un panier par session, il en est créer un pour toutes ses différentes
+        réservations.
+  
+      responses:
+        '201':
+          description: Panier créé avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409':
+          description: Le voyageur a déjà un panier actif et encore en cours.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: 'https://api.catapulte-connect.ontb.example/v1/errors/cart-already-exists'
+                title: Panier déjà existant
+                status: 409
+                detail: Vous avez déjà un panier actif. Veuillez le régler ou videz-le avant d'en ouvrir un nouveau.
+
+
   # GET /carts
   #   Récupérer le panier actif du voyageur connecté. Un voyageur n'a qu'un
   #   panier actif à la fois — et parfois aucun, ce qui est un état normal
@@ -700,8 +732,59 @@ components:
     # Cart
     #   Un panier de réservation. Il connaît son état, ses lignes, et son total.
 
+    Cart:
+      type: object
+      description: Un panier de réservation.
+      required: [id, status, items, total, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d
+        status:
+          type: string
+          enum: [en_cours, regler]
+          example: en_cours
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        total:
+          type: number
+          format: float
+          description: Somme total des montants du panier actif en euros, calculé par le serveur.
+          example: 195.50
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-10-15T10:00:00Z'
+
     # CartItem
     #   Une ligne de panier : un lancer et un nombre de places.
+
+    CartItem:
+      type: object
+      description: Un élément compris dans le panier, donc une réservation sur un trajet précis
+      required: [id, trip, nbPassengers, subtotal]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant unique de la ligne de panier
+          example: 3c2b1a0f-5e6f-4a7b-8c9d-0e1f2a3b4c5d
+        trip:
+          $ref: '#/components/schemas/TripSummary'
+        nbPassengers:
+          type: integer
+          minimum: 1
+          description: Nombre de places réservées pour le trajet
+          example: 2
+        subtotal:
+          type: number
+          format: float
+          description: Sous total pour une certaine réservation
+          example: 105.00
+      
 
     # Ticket
     #   Un droit à embarquer sur un lancer, émis au paiement. Un par place.
