@@ -224,6 +224,31 @@ paths:
   #   Rechercher une ville desservie, par filtre textuel.
   #   Chaque ville du réseau possède une catapulte unique en son centre.
   #   Opération PUBLIQUE : on cherche sans être connecté.
+  /cities:
+    get:
+      tags: [Découverte]
+      operationId: getCities
+      summary: Obtenir la liste des villes désservies
+      description: |
+        Retourne la liste des villes desservies par le réseau.
+        Permet de filtrer par nom et de limiter le nombre de résultats.
+      security: []
+
+      
+
+      responses:
+        '200':
+          description: Toutes les villes du réseau CATAPULT Connect
+          content:
+            application/json:
+              schema:
+                type: array
+                items:                
+                  $ref: '#/components/schemas/City'
+        
+
+
+
 
   # POST /trips/search
   #   Rechercher les lancers reliant deux villes à une date donnée, pour un
@@ -495,6 +520,20 @@ components:
     # City
     #   Une ville desservie. Chaque ville possède une catapulte unique en son
     #   centre, qui sert à la fois de point de lancement et de réception.
+    City:
+      type: object
+      description: Représente Une ville desservie. Chaque ville possède une catapulte unique en son centre, qui sert à la fois de point de lancement et de réception.
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d
+        name:
+          type: string
+          example: Paris
+
+
 
     # TripSummary
     #   Un lancer tel qu'il apparaît dans une liste de résultats : de quoi
