@@ -1,0 +1,5 @@
+name: Mock
+variables:
+  - name: baseUrl
+    value: http://localhost:4010
+    description: Url de base mock
