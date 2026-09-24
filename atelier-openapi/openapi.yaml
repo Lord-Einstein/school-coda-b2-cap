@@ -279,6 +279,39 @@ paths:
   #   aucun itinéraire composé. Sans lancer direct ce jour-là, la liste est vide.
   #   Opération PUBLIQUE.
 
+  /trips/search:
+    post:
+      tags: [Découverte]
+      operationId: searchTrips
+      summary: Rechercher un lancer (un voyage en catapulte c'est un lancer ! Bah oui XD !)
+      description: |
+        Rechercher les lancers reliant deux villes à une date donnée, pour un
+        nombre de places. Tous les lancers sont directs : aucune correspondance,
+        aucun itinéraire composé. Sans lancer direct ce jour-là, la liste est vide.
+      
+      security: []
+
+      requestBody:
+        required: true
+        content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/TripSearch'
+      
+      responses:
+        '200':
+          description: Liste des lancers qui correspondent à la recherche de l'user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripSummary'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+
+
   # GET /trips/{id}
   #   Consulter le détail d'un lancer. Le détail porte ce qu'une liste de
   #   résultats n'a aucune raison de transporter pour chacune de ses lignes.
@@ -557,10 +590,63 @@ components:
           example: Paris
 
 
+    # TripSearch que je rajoute pour formaliser le corps de la requête de l'user
+    # sur la partie /trip/search
+    TripSearch:
+      type: object
+      description: Représente les éléments de recherche de trajets entrés par l'user
+      required: [departCity, arrivalCity, date, nbPassengers]
+      properties:
+        departCity:
+          type: string
+          format: uuid
+          description: Identifiant uuid de la ville de départ
+          example: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d
+        arrivalCity:
+          type: string
+          format: uuid
+          description: Identifiant uuid de la ville d'arrivée
+          example: 1a2b3c4d-5c6d-4a7b-8c9d-0e1f2a3b4c5d
+        date:
+          type: string
+          format: date
+          example: '2026-10-15'
+        nbPassengers:
+          type: integer
+          minimum: 1
+          example: 2
 
     # TripSummary
     #   Un lancer tel qu'il apparaît dans une liste de résultats : de quoi
     #   choisir, pas de quoi préparer son voyage.
+    TripSummary:
+      type: object
+      description: Informartions principales sur un lancer.
+      required: [id, departCity, arrivalCity, departTime, minutesDuration, price]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant uuid du trajet
+          example: 1a2b3c4d-9e2f-4a7b-8c9d-0e1f2a3b4c5d
+        departCity:
+          $ref: '#/components/schemas/City'
+        arrivalCity:
+          $ref: '#/components/schemas/City'
+        departTime:
+          type: string
+          format: date-time
+          example: '2026-10-15T08:30:00Z'
+        minutesDuration:
+          type: integer
+          description: Durée du lancer en minutes.
+          example: 45
+        price:
+          type: number
+          format: float
+          description: Le prix par place et en euros.
+          example: 160.00
+
 
     # TripDetail
     #   Le même lancer, consulté seul. Il ajoute ce dont on a besoin une fois
