@@ -562,6 +562,27 @@ paths:
   #   embarquer sur un lancer : il n'est pas nominatif, il vaut pour une
   #   place et non pour une personne désignée.
 
+  /tickets:
+    get:
+      tags: [Compte]
+      operationId: getTickets
+      summary: Lister les billets de son panier
+      description: |
+        Lister les billets du voyageur connecté. Un billet est un droit à
+          embarquer sur un lancer : il n'est pas nominatif, il vaut pour une
+          place et non pour une personne désignée.
+      responses:
+        '200':
+          description: Liste des billets de l'user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+                  
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
 components:
   # ==========================================================================
   #  FOURNI — Sécurité, erreurs, et schémas de l'authentification
