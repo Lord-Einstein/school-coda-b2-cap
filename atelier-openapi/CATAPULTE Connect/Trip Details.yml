@@ -1,0 +1,16 @@
+info:
+  name: Trip Details
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{baseUrl}}/trips/1a2b3c4d-9e2f-4a7b-8c9d-0e1f2a3b4c5d"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

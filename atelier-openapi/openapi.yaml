@@ -317,6 +317,33 @@ paths:
   #   résultats n'a aucune raison de transporter pour chacune de ses lignes.
   #   Opération PUBLIQUE.
 
+  /trips/{id}:
+    get:
+      tags: [Découverte]
+      operationId: getTripDetails
+      summary: Consulter tous les détails d'un lancer
+      description: |
+        Consulter le détail d'un lancer. Le détail porte ce qu'une liste de
+        résultats n'a aucune raison de transporter pour chacune de ses lignes.
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant unique d'un lancer
+          schema:
+            type: string
+            format: uuid
+            example: 1a2b3c4d-9e2f-4a7b-8c9d-0e1f2a3b4c5d
+      responses:
+        '200':
+          description: Détail complet du lancer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripDetail'
+        '404': { $ref: '#/components/responses/NotFound' }
+
   # ---- Panier (authentifié) ------------------------------------------------
 
   # POST /carts
@@ -647,11 +674,28 @@ components:
           description: Le prix par place et en euros.
           example: 160.00
 
-
     # TripDetail
     #   Le même lancer, consulté seul. Il ajoute ce dont on a besoin une fois
     #   qu'on l'a choisi — notamment la franchise de masse, qui n'est pas ici
     #   une limite commerciale mais balistique.
+
+    TripDetail:
+      description: Compléments d'informations sur les différents lancers.
+      allOf:
+        - $ref: '#/components/schemas/TripSummary'
+        - type: object
+          required: [baggagesMassKg, catapultModel, instructions]
+          properties:
+            baggagesMassKg:
+              type: integer
+              description: Franchise de la masse autorisée en kg
+              example: 35
+            catapultModel:
+              type: string
+              example: " Catalp-Vulcain MK-IV "
+            instructions:
+              type: string
+              example: " Arriver 30 minutes avant le tir. Port du casque obligatoire. Et surtout ayez le coeur bien accroché !!!"
 
     # Cart
     #   Un panier de réservation. Il connaît son état, ses lignes, et son total.

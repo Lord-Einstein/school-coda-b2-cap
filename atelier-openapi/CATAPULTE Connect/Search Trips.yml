@@ -5,7 +5,16 @@ info:
 
 http:
   method: POST
-  url: POST {{baseUrl}}/trips/search
+  url: "{{baseUrl}}/trips/search"
+  body:
+    type: json
+    data: |-
+      {
+        "departCity": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "arrivalCity": "1a2b3c4d-5e6f-4a7b-8a9b-0e1f2a3b4c5d",
+        "date": "2026-10-15",
+        "nbPassengers": 2
+      }
   auth: inherit
 
 settings:
