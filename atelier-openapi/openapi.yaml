@@ -490,7 +490,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
 
         '401': { $ref: '#/components/responses/Unauthorized' }
-        
+
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
@@ -500,6 +500,60 @@ paths:
   #   déclare un moyen de paiement, rien de plus.
   #   L'écran de confirmation doit pouvoir se peindre à partir de cette seule
   #   réponse. Que se passe-t-il si le panier est déjà payé ?
+
+  /carts/{id}/pay:
+    post:
+      tags: [Panier]
+      operationId: payementCart
+      summary: Régler le panier en payant
+      description: |
+        Règle le panier actif. Le statut du panier passe de `pending` à `paid`
+        et les billets correspondants sont générés, un billet ou ticket par place .
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant unique du panier à régler
+          schema:
+            type: string
+            format: uuid
+            example: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayRequest'
+      responses:
+        '200':
+          description: Panier régler
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+        '409':
+          description: Ce panier est déjà régler XD !
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: 'https://api.catapulte-connect.ontb.example/v1/errors/cart-already-paid'
+                title: Panier déjà payé
+                status: 409
+                detail: Ce panier a déjà été réglé et ne peut plus être modifié.
+        '422': { $ref: '#/components/responses/ValidationError' }
+
 
   # ---- Billets (authentifié) -----------------------------------------------
 
@@ -841,8 +895,8 @@ components:
           example: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d
         status:
           type: string
-          enum: [en_cours, regler]
-          example: en_cours
+          enum: [pending, paid]
+          example: pending
         items:
           type: array
           items:
@@ -901,3 +955,42 @@ components:
 
     # Ticket
     #   Un droit à embarquer sur un lancer, émis au paiement. Un par place.
+
+    Ticket:
+      type: object
+      description: Un ticket unique pour une place dans le trajet réservé
+      required: [id, cartId, trip, seatNumber, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant unique du billet
+          example: 8e7d6c5b-4a3b-2c1d-0e9f-8a7b6c5d4e3f
+        cartId:
+          type: string
+          format: uuid
+          description: Identifiant du panier dans lequel la réservation est faite
+          example: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d
+        trip:
+          $ref: '#/components/schemas/TripSummary'
+        seatNumber:
+          type: string
+          description: Numéro d'une place réservée
+          example: ONTB-7K2M-4831
+        createdAt:
+          type: string
+          format: date-time
+          description: Date et heure de création du billet.
+          example: '2026-10-15T10:05:00Z'
+
+    PayRequest:
+      type: object
+      description: Représente les informations de payement au moment de régler le panier
+      required: [paymentMethod]
+      properties:
+        paymentMethod:
+          type: string
+          enum: [cb, carte_balistique, virement_ontb]
+          example: cb
+
+    
