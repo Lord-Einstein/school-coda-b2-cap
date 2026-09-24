@@ -235,7 +235,7 @@ paths:
       security: []
 
       parameters:
-        - name: name
+        - name: q
           in: query
           required: false
           description: Filtre sur le nom de la ville.
@@ -408,16 +408,57 @@ paths:
   # GET /carts
   #   Récupérer le panier actif du voyageur connecté. Un voyageur n'a qu'un
   #   panier actif à la fois — et parfois aucun, ce qui est un état normal
-  #   et non une erreur. Réfléchissez à ce que ça implique pour la réponse.
+  #   et non une erreur. Réfléchissez à ce que ça implique pour la réponse. 
+
+  # NB : je l'ai fait directement en haut sous le path /carts pour éviter de la dupli...
 
   # POST /carts/{id}/items
   #   Ajouter un lancer au panier, avec un nombre de places.
   #   L'écran de panier doit pouvoir se peindre à partir de cette seule
   #   réponse, sans second appel. Le total est calculé par le serveur.
 
+  /carts/{id}/items:
+    post:
+      tags: [Panier]
+      operationId: addItemToCart
+      summary: Ajouter un item au panier, donc un lancer ou un trajet de catapulte
+      description: |
+        Ajoute un lancer et un nombre de places au panier spécifié.
+        Le sous-total et le montant total du panier sont recalculés par le serveur.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant unique du panier.
+          schema:
+            type: string
+            format: uuid
+            example: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardItemAdd'
+      responses:
+        '200':
+          description: Article bien ajouté au panier...
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+      
+
   # DELETE /carts/{id}/items/{itemId}
   #   Retirer une ligne du panier. Si c'était la dernière, le panier disparaît
   #   côté serveur — le voyageur n'a rien à faire de plus.
+
+  
 
   # POST /carts/{id}/pay
   #   Payer le panier : il passe de `pending` à `paid` et les billets sont
@@ -750,7 +791,7 @@ components:
               example: " Catalp-Vulcain MK-IV "
             instructions:
               type: string
-              example: " Arriver 30 minutes avant le tir. Port du casque obligatoire. Et surtout ayez le coeur bien accroché !!!"
+              example: " Arriver 30 minutes avant le tir. Prévoyez une pompe funèbre au cas où et puis de toutes façons là on est sur une expérience de Shcrudinger à un seul état !!! Et surtout ayez le coeur bien accroché !!!"
 
     # Cart
     #   Un panier de réservation. Il connaît son état, ses lignes, et son total.
@@ -808,6 +849,22 @@ components:
           description: Sous total pour une certaine réservation
           example: 105.00
       
+    CardItemAdd:
+      type: object
+      description: Représente le corps de la requête pour la création d'1 réservation dans le panier.
+      required: [tripId, nbPassengers]
+      properties:
+        tripId:
+          type: string
+          format: uuid
+          description: Identifiant unique du trajet à ajouter
+          example: 1a2b3c4d-9e2f-4a7b-8c9d-0e1f2a3b4c5d
+        nbPassengers:
+          type: integer
+          minimum: 1
+          description: Nombre de places à réserver.
+          example: 3
+
 
     # Ticket
     #   Un droit à embarquer sur un lancer, émis au paiement. Un par place.
